@@ -17,6 +17,18 @@ import random
 # Chỉ định đường dẫn đến tesseract.exe nếu cần
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
+import numpy as np
+import cv2
+
+def imread_unicode(path):
+    """Đọc ảnh có tên Unicode (có dấu tiếng Việt)."""
+    try:
+        data = np.fromfile(path, dtype=np.uint8)
+        return cv2.imdecode(data, cv2.IMREAD_COLOR)
+    except Exception as e:
+        print(f"⚠️ Lỗi đọc ảnh '{path}': {e}")
+        return None
+
 
 
 # Tọa độ các nút cho các hàm
@@ -50,8 +62,8 @@ def click_mot_lan_vung_nut(vitri_nut, ten_nut, delay=0.5, timeout=2, threshold=0
     vung_nut = (vitri_nut[0] - 50, vitri_nut[1] - 30, 100, 60)
     
     # Chụp ảnh trước khi click
-    truoc_file = f"{ten_nut}_truoc.png"
-    sau_file = f"{ten_nut}_sau.png"
+    truoc_file = f"ScreenShot\{ten_nut}_truoc.png"
+    sau_file = f"ScreenShot\{ten_nut}_sau.png"
     pyautogui.screenshot(truoc_file, region=vung_nut)
     
     print(f"Đang click nút {ten_nut} tại {vitri_nut} sau {delay} giây...")
@@ -66,8 +78,8 @@ def click_mot_lan_vung_nut(vitri_nut, ten_nut, delay=0.5, timeout=2, threshold=0
     pyautogui.screenshot(sau_file, region=vung_nut)
     
     # So sánh ảnh
-    img1 = cv2.imread(truoc_file)
-    img2 = cv2.imread(sau_file)
+    img1 = imread_unicode(truoc_file)
+    img2 = imread_unicode(sau_file)
     
     if img1 is None or img2 is None:
         print(f"❌ Không đọc được ảnh cho nút {ten_nut}.")
@@ -92,8 +104,8 @@ def click_mot_lan_vung_nut(vitri_nut, ten_nut, delay=0.5, timeout=2, threshold=0
 def click_mot_lan_toan_man_hinh(vitri_nut, ten_nut, delay=0.5, timeout=2, threshold=0.95):
     """Click 1 lần, chụp và so sánh ảnh toàn màn hình."""
     # Chụp ảnh trước khi click
-    truoc_file = f"{ten_nut}_truoc.png"
-    sau_file = f"{ten_nut}_sau.png"
+    truoc_file = f"ScreenShot\{ten_nut}_truoc.png"
+    sau_file = f"ScreenShot\{ten_nut}_sau.png"
     pyautogui.screenshot(truoc_file, region=VUNG_SO_SANH_TOAN_MAN_HINH)
     
     print(f"Đang click nút {ten_nut} tại {vitri_nut} sau {delay} giây...")
@@ -108,8 +120,8 @@ def click_mot_lan_toan_man_hinh(vitri_nut, ten_nut, delay=0.5, timeout=2, thresh
     pyautogui.screenshot(sau_file, region=VUNG_SO_SANH_TOAN_MAN_HINH)
     
     # So sánh ảnh
-    img1 = cv2.imread(truoc_file)
-    img2 = cv2.imread(sau_file)
+    img1 = imread_unicode(truoc_file)
+    img2 = imread_unicode(sau_file)
     
     if img1 is None or img2 is None:
         print(f"❌ Không đọc được ảnh cho nút {ten_nut}.")
@@ -150,8 +162,8 @@ def click_hai_lan(toa_do_1, toa_do_2, ten_nut, delay1=0.5, delay2=0.5, timeout=1
     pyautogui.click()
     
     # Chụp ảnh trước khi click lần 2
-    truoc_file = f"{ten_nut}_truoc.png"
-    sau_file = f"{ten_nut}_sau.png"
+    truoc_file = f"ScreenShot\{ten_nut}_truoc.png"
+    sau_file = f"ScreenShot\{ten_nut}_sau.png"
     pyautogui.screenshot(truoc_file, region=vung_nut_2)
     
     # Click lần 2
@@ -167,8 +179,8 @@ def click_hai_lan(toa_do_1, toa_do_2, ten_nut, delay1=0.5, delay2=0.5, timeout=1
     pyautogui.screenshot(sau_file, region=vung_nut_2)
     
     # So sánh ảnh
-    img1 = cv2.imread(truoc_file)
-    img2 = cv2.imread(sau_file)
+    img1 = imread_unicode(truoc_file)
+    img2 = imread_unicode(sau_file)
     
     if img1 is None or img2 is None:
         print(f"❌ Không đọc được ảnh cho nút {ten_nut}.")
@@ -201,7 +213,7 @@ def click_va_dan_link(vitri_o=oDanLink, doan_text="", ten_nut="dán link"):
     pyautogui.hotkey("ctrl", "v")
     print(f"✅ Đã {ten_nut} thành công.")
 
-def chup_anh_so_video(filename="anhSoCuaVideo.png"):
+def chup_anh_so_video(filename=f"ScreenShot\anhSoCuaVideo.png"):
     """Chụp ảnh số của video."""
     x1, y1 = nutSoVideo
     x2, y2 = 2369, 880
@@ -214,7 +226,7 @@ def chup_anh_so_video(filename="anhSoCuaVideo.png"):
 # Hàm nhan_dien_so_tu_anh giữ nguyên
 def nhan_dien_so_tu_anh(duong_dan_anh):
     try:
-        img = cv2.imread(duong_dan_anh)
+        img = imread_unicode(duong_dan_anh)
         h, w = img.shape[:2]
         left = int(w * 0.01)
         right = int(w * 0.99)
@@ -234,7 +246,7 @@ def nhan_dien_so_tu_anh(duong_dan_anh):
         closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
         inverted = cv2.bitwise_not(closed)
         scale_up = cv2.resize(inverted, None, fx=3, fy=3, interpolation=cv2.INTER_LINEAR)
-        cv2.imwrite("processed.png", scale_up)
+        cv2.imwrite(f"ScreenShot\processed.png", scale_up)
         config1 = '--psm 8 -c tessedit_char_whitelist=0123456789'
         text1 = pytesseract.image_to_string(scale_up, config=config1)
         so1 = ''.join(filter(str.isdigit, text1))
@@ -250,7 +262,7 @@ def nhan_dien_so_tu_anh(duong_dan_anh):
         print(f"❌ Lỗi OCR: {e}")
         return None
 
-# Hàm thử lại click
+# Hàm thử lại click 
 def thu_lai_click(func, so_lan_thu=2, delay=1):
     """Thử lại click nếu thất bại."""
     for lan in range(so_lan_thu):
@@ -261,29 +273,60 @@ def thu_lai_click(func, so_lan_thu=2, delay=1):
     print("❌ Đã thử nhiều lần nhưng vẫn thất bại.")
     return False
 
-# Hàm click_chon_video với logic đặc biệt
+# ====================== CHỌN VIDEO VỚI LOGIC DỊCH TỌA ĐỘ ======================
+so_lan_click_video = 0
+vitri_chon_video = [2001, 415]
+cuon_chuot_y = 0
+
 def click_chon_video(delay=0.5, timeout=3, threshold=0.95):
-    """Click chọn video với logic cập nhật tọa độ."""
+    """
+    Click chọn video theo hàng 4-cột.
+    Trước mỗi lần click:
+      - Luôn cuộn đến vị trí tổng = block * 180,
+        với block = so_lan_click_video // 4 (hàng thứ mấy, bắt đầu từ 0).
+      - Mỗi hàng có 4 video, vị trí X = base + (so_lan_click_video % 4) * 200
+    """
     global vitri_chon_video, so_lan_click_video, cuon_chuot_y
-    time.sleep(1)
-    
+
+    time.sleep(0.5)
+
+    # Khởi tạo lần đầu
     if so_lan_click_video == 0:
-        vitri_nut = nutChonVideo
-    else:
-        vitri_nut = tuple(vitri_chon_video)
-    
-    result = click_mot_lan_toan_man_hinh(vitri_nut, "chọn video", delay, timeout, threshold)
-    
+        vitri_chon_video = list(nutChonVideo)
+        cuon_chuot_y = 0
+
+    # Tính hàng hiện tại
+    block = so_lan_click_video // 4
+    muc_cuon = block * 180
+
+    # # Nếu mức cuộn hiện tại khác mức mong muốn -> cuộn tới đó
+    # if cuon_chuot_y != muc_cuon:
+    #     delta = muc_cuon - cuon_chuot_y
+    #     pyautogui.scroll(-delta)
+    #     cuon_chuot_y = muc_cuon
+    #     print(f"🔃 Cuộn đến {cuon_chuot_y}px (hàng {block}) trước khi click video {so_lan_click_video + 1}")
+    #     time.sleep(0.4)
+
+    print("MUC CUON ======= ", muc_cuon)
+    pyautogui.scroll(-muc_cuon)
+    time.sleep(0.4)
+
+    # Cập nhật vị trí click theo cột trong hàng
+    vitri_chon_video = [nutChonVideo[0] + (so_lan_click_video % 4) * 200, nutChonVideo[1]]
+
+    vitri_nut = tuple(vitri_chon_video)
+    print(f"🎯 Click 'Chọn video' tại {vitri_nut} (lần thứ {so_lan_click_video + 1})")
+
+    # Thực hiện click
+    result = click_mot_lan_toan_man_hinh(vitri_nut, f"Chọn video {so_lan_click_video + 1}", delay, timeout, threshold)
+
     if result:
         so_lan_click_video += 1
-        if so_lan_click_video == 1:
-            vitri_chon_video = [2201, 415]
-        elif so_lan_click_video % 4 != 0:
-            vitri_chon_video[0] += 200
-        else:
-            vitri_chon_video = [2001, 415]
-            cuon_chuot_y += 180
+
     return result
+
+
+
 
 def click_va_dan_mo_ta_video(vitri_o=(2235, 294), doan_text=""):
     print(f"Click tại {vitri_o} và them mo ta...")
@@ -362,9 +405,10 @@ def DangVideo(index):
     if not click_mot_lan_toan_man_hinh(nutThuVien, "Nut Thu Vien Anh"):
         return False
 
-    # Bước 3: Click chọn video
-    if not click_mot_lan_toan_man_hinh(nutChonVideo, "Video"):  # Sử dụng hàm click_chon_video đã định nghĩa
+    # Bước 3: Click chọn video (theo thứ tự và cuộn)
+    if not click_chon_video():
         return False
+
 
     # Bước 4: Click nút Tiếp theo (lần 1)
     click_mot_lan_khong_so_sanh(nutTiepTheo, "Nut Tiep Theo 1")
@@ -436,11 +480,12 @@ def DangVideo(index):
 #DangVideo()
 
 # Ví dụ sử dụng:
-file_path = r"C:\Users\84765\Downloads\group_7. ghế nhựa lưng.xlsx"
+file_path = r"C:\Users\84765\Desktop\MMO\Shopee\ShopeeVy\CanXuLy\mainBoard\1.xlsx"
+
 listLinkSP = doc_cot_dau_tien_xlsx(file_path)
 #Mo ta video
-moTaVideo = """#ShopeeCreator #ShopeeStyle #ShopeeVideo #LuotVuiMuaLien #VideohangDoiSong #VideohangTieuDung #VideohangGiaDung 
-Xin Qua Mn Oi"""
+moTaVideo = """mainboard bo mạch chủ pc chất lượng.  #ShopeeCreator #ShopeeStyle #ShopeeVideo #LuotVuiMuaLien  
+#MainBoard #Pc"""
 linkSP = ""
 
 
@@ -449,6 +494,3 @@ print(len(listLinkSP))
 for i in range(len(listLinkSP) - 1):
     if not DangVideo(i):
         break
-
-
-

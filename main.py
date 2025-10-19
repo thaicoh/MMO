@@ -980,8 +980,6 @@ def dang_1_video():
 
             return False
         
-
-
 import pandas as pd
 import re
 
